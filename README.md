@@ -1,12 +1,17 @@
 ## NOTICE
 
-This repository contains the public FTC SDK for the BIOBUZZ (2026-2027) competition season.
+This repository contains the public FTC SDK for the BIOBUZZ (2026-2027) competition season. This repository has been modified to be used by the FIRE FTC #16953 Team.
 
 ## Welcome!
-This GitHub repository contains the source code that is used to build an Android app to control a *FIRST* Tech Challenge competition robot.  To use this SDK, download/clone the entire project to your local computer.
+This GitHub repository contains the source code that is used to build an Android app to control a *FIRST* Tech Challenge competition robot, specifically robots produced by FTC #16953.
 
 ## Requirements
-To use this Android Studio project, you will need Android Studio Narwhal 3 Feature Drop or later.
+To use this Android Studio project, you will need any of the following Android Studio Versions:
+- Narwhal 4
+- Otter Series
+- Panda Series
+- Quail Series
+- Rabbit Series
 
 To program your robot in Blocks or OnBot Java, you do not need Android Studio.
 
