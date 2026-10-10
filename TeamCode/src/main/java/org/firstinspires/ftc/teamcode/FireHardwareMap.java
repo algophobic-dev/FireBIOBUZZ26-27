@@ -57,7 +57,7 @@ public class FireHardwareMap {
         // --- MOTOR DIRECTIONS ---
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.FORWARD); 
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);

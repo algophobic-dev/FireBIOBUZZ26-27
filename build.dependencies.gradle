@@ -3,6 +3,7 @@ repositories {
     google() // Needed for androidx
     //pedropathing
     maven { url 'https://repo.dairy.foundation/releases/'}
+    maven { url 'https://mymaven.bylazar.com/releases' }
 }
 
 dependencies {
@@ -18,6 +19,7 @@ dependencies {
     //pedropathing
     implementation 'com.pedropathing:revhub:3.0.1'
     implementation 'com.pedropathing:tuning:1.0.0'
+    implementation 'com.bylazar:fullpanels:1.+'
 
 }
 

@@ -14,7 +14,7 @@ public class New extends LinearOpMode {
         testMotor = hardwareMap.get(DcMotor.class, "test_motor");
 
         telemetry.addData("Status", "Initialized. Press Play.");
-        telemetry.update();
+
 
         waitForStart();
 
@@ -37,6 +37,9 @@ public class New extends LinearOpMode {
             telemetry.addData("Motor Power Sent", motorPower);
             telemetry.addData("Right Paddle (D-Pad Up)", gamepad1.dpad_up);
             telemetry.addData("Left Paddle (D-Pad Down)", gamepad1.dpad_down);
+            telemetry.addData("Configured port", testMotor.getPortNumber());
+            telemetry.addData("Connection", testMotor.getConnectionInfo());
+            telemetry.addData("Actual motor power", testMotor.getPower());
             telemetry.update();
         }
     }
