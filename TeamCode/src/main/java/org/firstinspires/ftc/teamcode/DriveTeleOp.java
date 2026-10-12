@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "Drive TeleOp V2")
+@TeleOp(name = "Drive TeleOp")
 public class DriveTeleOp extends LinearOpMode {
     // ================= TUNING - edit these, then Run ▶ =================
     static final double MAX_POWER        = 0.8;  // normal top speed
@@ -37,32 +37,33 @@ public class DriveTeleOp extends LinearOpMode {
         }
 
         boolean locked = false;
+        boolean lockButtonWas = false;
 
         waitForStart();
         while (opModeIsActive()) {
-            // ===== LOCK: only while D-pad DOWN is held =====
-            boolean holdLock = gamepad1.dpad_down;
+            // ===== LOCK: tap D-pad DOWN to toggle lock on/off =====
+            boolean lockButton = gamepad1.right_stick_button;
 
-            if (holdLock && !locked) {            // just started holding -> lock here
+            if (lockButton && !lockButtonWas) {   // only on the moment it's pressed
+                locked = !locked;
                 for (DcMotor m : motors) {
                     DcMotorEx mx = (DcMotorEx) m;
-                    mx.setTargetPosition(mx.getCurrentPosition());
-                    mx.setTargetPositionTolerance(2);          // fight even tiny pushes
-                    mx.setPositionPIDFCoefficients(LOCK_STIFFNESS);
-                    mx.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    mx.setPower(LOCK_POWER);
+                    if (locked) {                 // lock right here
+                        mx.setTargetPosition(mx.getCurrentPosition());
+                        mx.setTargetPositionTolerance(2);          // fight even tiny pushes
+                        mx.setPositionPIDFCoefficients(LOCK_STIFFNESS);
+                        mx.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        mx.setPower(LOCK_POWER);
+                    } else {                      // unlock -> back to driving
+                        mx.setPower(0);
+                        mx.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    }
                 }
-                locked = true;
-            } else if (!holdLock && locked) {     // let go -> back to driving
-                for (DcMotor m : motors) {
-                    m.setPower(0);
-                    m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                }
-                locked = false;
             }
+            lockButtonWas = lockButton;
 
             if (locked) {
-                telemetry.addLine("LOCKED");
+                telemetry.addLine("LOCKED - tap D-pad down to unlock");
                 telemetry.update();
                 continue; // ignore sticks while locked
             }
@@ -97,9 +98,6 @@ public class DriveTeleOp extends LinearOpMode {
             rightFront.setPower(rf / max * speed);
             rightBack.setPower(rb / max * speed);
 
-            telemetry.addData("dpad up", gamepad1.dpad_up);
-            telemetry.addData("dpad down", gamepad1.dpad_down);
-            telemetry.addData("back", gamepad1.back);
             telemetry.addData("speed", speed);
             telemetry.addData("LF/LB/RF/RB", "%.2f %.2f %.2f %.2f",
                     lf / max * speed, lb / max * speed, rf / max * speed, rb / max * speed);
