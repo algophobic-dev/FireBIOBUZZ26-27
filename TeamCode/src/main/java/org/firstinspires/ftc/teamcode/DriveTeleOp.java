@@ -19,8 +19,10 @@ public class DriveTeleOp extends LinearOpMode {
     static final double STRAFE_DRIFT_FIX = 0.0;  // + or - to stop drifting fwd/back while strafing
     static final double FRONT_SCALE      = 1.0;  // power multiplier for front wheels
     static final double BACK_SCALE       = 1.0;  // power multiplier for back wheels
-    static final double INTAKE_POWER     = 1.0;  // intake speed (gamepad 2)
-    static final boolean INTAKE_REVERSED = true; // RT direction - flip if intake spins the wrong way
+    static final double INTAKE_POWER     = 1.0;  // intake speed at full RT (gamepad 2)
+    static final boolean INTAKE_REVERSED = true;  // flip if intake spins the wrong way
+    static final double INTAKE2_POWER     = 1.0;  // intakeMotorTwo speed (gamepad 2)
+    static final boolean INTAKE2_REVERSED = false; // flip if intakeMotorTwo spins the wrong way
     // ====================================================================
 
     @Override
@@ -36,6 +38,11 @@ public class DriveTeleOp extends LinearOpMode {
                 : DcMotorSimple.Direction.FORWARD);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        DcMotor intakeMotorTwo = hardwareMap.get(DcMotor.class, "intakeMotorTwo");
+        intakeMotorTwo.setDirection(INTAKE2_REVERSED ? DcMotorSimple.Direction.REVERSE
+                : DcMotorSimple.Direction.FORWARD);
+        intakeMotorTwo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         for (DcMotor m : motors) {
@@ -48,11 +55,17 @@ public class DriveTeleOp extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            // ===== INTAKE (gamepad 2): RT = intake, hold RB = other way (works even while locked) =====
-            double intakePower = gamepad2.right_trigger * INTAKE_POWER;   // RT = correct way
-            if (gamepad2.right_bumper) intakePower = -INTAKE_POWER;       // RB = opposite way
+            // ===== INTAKE (gamepad 2): RT = intake, hold RB = reverse (works even while locked) =====
+            double intakePower = gamepad2.right_trigger * INTAKE_POWER;   // 0 to INTAKE_POWER
+            if (gamepad2.right_bumper) intakePower = -INTAKE_POWER;       // RB = spit out
             intakeMotor.setPower(intakePower);
             telemetry.addData("intake", "%.2f", intakePower);
+
+            // ===== INTAKE 2 (gamepad 2): LT = forward, hold LB = backward =====
+            double intake2Power = gamepad2.left_trigger * INTAKE2_POWER;  // LT = forward
+            if (gamepad2.left_bumper) intake2Power = -INTAKE2_POWER;      // LB = backward
+            intakeMotorTwo.setPower(intake2Power);
+            telemetry.addData("intake 2", "%.2f", intake2Power);
 
             // ===== LOCK: click the RIGHT STICK to toggle lock on/off =====
             boolean lockButton = gamepad1.right_stick_button;
