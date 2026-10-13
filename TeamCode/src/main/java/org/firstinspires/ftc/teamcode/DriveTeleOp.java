@@ -62,8 +62,8 @@ public class DriveTeleOp extends LinearOpMode {
             telemetry.addData("intake", "%.2f", intakePower);
 
             // ===== INTAKE 2 (gamepad 2): LT = forward, hold LB = backward =====
-            double intake2Power = gamepad2.left_trigger * INTAKE2_POWER;  // LT = forward
-            if (gamepad2.left_bumper) intake2Power = -INTAKE2_POWER;      // LB = backward
+            double intake2Power = gamepad2.left_trigger * -INTAKE2_POWER;  // LT = forward
+            if (gamepad2.left_bumper) intake2Power = INTAKE2_POWER;      // LB = backward
             intakeMotorTwo.setPower(intake2Power);
             telemetry.addData("intake 2", "%.2f", intake2Power);
 
