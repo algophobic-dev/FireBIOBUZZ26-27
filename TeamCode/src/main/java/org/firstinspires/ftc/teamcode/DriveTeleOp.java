@@ -19,6 +19,8 @@ public class DriveTeleOp extends LinearOpMode {
     static final double STRAFE_DRIFT_FIX = 0.0;  // + or - to stop drifting fwd/back while strafing
     static final double FRONT_SCALE      = 1.0;  // power multiplier for front wheels
     static final double BACK_SCALE       = 1.0;  // power multiplier for back wheels
+    static final double INTAKE_POWER     = 1.0;  // intake speed (gamepad 2)
+    static final boolean INTAKE_REVERSED = true; // RT direction - flip if intake spins the wrong way
     // ====================================================================
 
     @Override
@@ -29,6 +31,11 @@ public class DriveTeleOp extends LinearOpMode {
         DcMotor rightBack  = hardwareMap.get(DcMotor.class, "rightBack");
         DcMotor[] motors = {leftFront, leftBack, rightFront, rightBack};
 
+        DcMotor intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeMotor.setDirection(INTAKE_REVERSED ? DcMotorSimple.Direction.REVERSE
+                : DcMotorSimple.Direction.FORWARD);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         for (DcMotor m : motors) {
@@ -36,13 +43,18 @@ public class DriveTeleOp extends LinearOpMode {
             m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-
         boolean locked = false;
         boolean lockButtonWas = false;
 
         waitForStart();
         while (opModeIsActive()) {
-            // ===== LOCK: tap D-pad DOWN to toggle lock on/off =====
+            // ===== INTAKE (gamepad 2): RT = intake, hold RB = other way (works even while locked) =====
+            double intakePower = gamepad2.right_trigger * INTAKE_POWER;   // RT = correct way
+            if (gamepad2.right_bumper) intakePower = -INTAKE_POWER;       // RB = opposite way
+            intakeMotor.setPower(intakePower);
+            telemetry.addData("intake", "%.2f", intakePower);
+
+            // ===== LOCK: click the RIGHT STICK to toggle lock on/off =====
             boolean lockButton = gamepad1.right_stick_button;
 
             if (lockButton && !lockButtonWas) {   // only on the moment it's pressed
@@ -64,7 +76,7 @@ public class DriveTeleOp extends LinearOpMode {
             lockButtonWas = lockButton;
 
             if (locked) {
-                telemetry.addLine("LOCKED - tap D-pad down to unlock");
+                telemetry.addLine("LOCKED - click right stick to unlock");
                 telemetry.update();
                 continue; // ignore sticks while locked
             }
