@@ -23,6 +23,11 @@ public class DriveTeleOp extends LinearOpMode {
     static final boolean INTAKE_REVERSED = true;  // flip if intake spins the wrong way
     static final double INTAKE2_POWER     = 1.0;  // intakeMotorTwo speed (gamepad 2)
     static final boolean INTAKE2_REVERSED = false; // flip if intakeMotorTwo spins the wrong way
+    static final double OUTTAKE_Y_POWER  = 0.4;  // Y = lowest outtake power (gamepad 2)
+    static final double OUTTAKE_B_POWER  = 0.6;  // B
+    static final double OUTTAKE_A_POWER  = 0.8;  // A
+    static final double OUTTAKE_X_POWER  = 1.0;  // X = highest
+    static final boolean OUTTAKE_REVERSED = false; // flip if outtake spins counterclockwise
     // ====================================================================
 
     @Override
@@ -43,6 +48,11 @@ public class DriveTeleOp extends LinearOpMode {
                 : DcMotorSimple.Direction.FORWARD);
         intakeMotorTwo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        DcMotor outtakeMotor = hardwareMap.get(DcMotor.class, "outtakePollen");
+        outtakeMotor.setDirection(OUTTAKE_REVERSED ? DcMotorSimple.Direction.REVERSE
+                : DcMotorSimple.Direction.FORWARD);
+        outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // coast down, don't slam stop
+
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         for (DcMotor m : motors) {
@@ -52,6 +62,9 @@ public class DriveTeleOp extends LinearOpMode {
 
         boolean locked = false;
         boolean lockButtonWas = false;
+
+        double outtakePower = 0;  // 0 = off
+        boolean yWas = false, bWas = false, aWas = false, xWas = false;
 
         waitForStart();
         while (opModeIsActive()) {
@@ -66,6 +79,16 @@ public class DriveTeleOp extends LinearOpMode {
             if (gamepad2.left_bumper) intake2Power = INTAKE2_POWER;      // LB = backward
             intakeMotorTwo.setPower(intake2Power);
             telemetry.addData("intake 2", "%.2f", intake2Power);
+
+            // ===== OUTTAKE (gamepad 2): Y < B < A < X power. Press = on at that power, same button again = off =====
+            boolean yNow = gamepad2.y, bNow = gamepad2.b, aNow = gamepad2.a, xNow = gamepad2.x;
+            if (yNow && !yWas) outtakePower = (outtakePower == OUTTAKE_Y_POWER) ? 0 : OUTTAKE_Y_POWER;
+            if (bNow && !bWas) outtakePower = (outtakePower == OUTTAKE_B_POWER) ? 0 : OUTTAKE_B_POWER;
+            if (aNow && !aWas) outtakePower = (outtakePower == OUTTAKE_A_POWER) ? 0 : OUTTAKE_A_POWER;
+            if (xNow && !xWas) outtakePower = (outtakePower == OUTTAKE_X_POWER) ? 0 : OUTTAKE_X_POWER;
+            yWas = yNow; bWas = bNow; aWas = aNow; xWas = xNow;
+            outtakeMotor.setPower(outtakePower);
+            telemetry.addData("outtake", outtakePower == 0 ? "OFF" : String.format("%.2f", outtakePower));
 
             // ===== LOCK: click the RIGHT STICK to toggle lock on/off =====
             boolean lockButton = gamepad1.right_stick_button;
